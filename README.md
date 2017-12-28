@@ -1,7 +1,5 @@
 # cifarclassify
 
-
-
 ---
 ## 图像分类算法
 这个仓库主要实现常用的网络并在cifar10数据集上进行试验，比较分类精度。主要参考如下所示：
@@ -11,6 +9,7 @@
 ---
 ### 网络实现
 - alexnet
+- MobileNet [mobilenet实现](doc/mobilenet_implement.md)
 - ...
 
 ---
@@ -28,6 +27,8 @@
 **可视化**
 
 [visdom](https://github.com/facebookresearch/visdom)
+[网络结构可视化](doc/pytorch_net_visual.md)
+
 
 ```bash
 # 在tmux或者另一个终端中开启可视化服务器visdom
