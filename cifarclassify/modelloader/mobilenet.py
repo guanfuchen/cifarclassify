@@ -83,8 +83,8 @@ class MobileNet(nn.Module):
         return x
 
 if __name__ == '__main__':
-    n_classes = 21
-    model = MobileNet(n_classes=1000)
+    n_classes = 1000
+    model = MobileNet(n_classes=n_classes)
     # model.init_vgg16()
     x = Variable(torch.randn(1, 3, 224, 224))
     y = Variable(torch.LongTensor(np.ones(1, dtype=np.int)))
@@ -93,12 +93,9 @@ if __name__ == '__main__':
     pred = model(x)
     end = time.time()
     print("MobileNet forward time:", end-start)
-    start = time.time()
-    vgg_16 = models.vgg16(pretrained=False)
-    pred = vgg_16(x)
-    end = time.time()
-    print("vgg16 forward time:", end-start)
-    # print(pred.shape)
-    # criterion = nn.CrossEntropyLoss()
-    # loss = criterion(pred, y)
-    # print(loss)
+    # start = time.time()
+    # vgg_16 = models.vgg16(pretrained=False)
+    # pred = vgg_16(x)
+    # end = time.time()
+    # print("vgg16 forward time:", end-start)
+

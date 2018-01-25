@@ -4,6 +4,7 @@
 ## 图像分类算法
 这个仓库主要实现常用的网络并在cifar10数据集上进行试验，比较分类精度。主要参考如下所示：
 - [pytorch-cifar](https://github.com/kuangliu/pytorch-cifar)
+- [pytorch-classification](https://github.com/bearpaw/pytorch-classification)
 
 
 ---
