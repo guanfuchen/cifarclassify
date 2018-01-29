@@ -6,6 +6,13 @@ from torch import nn
 from torch.autograd import Variable
 from torchvision import models
 import numpy as np
+import os
+from scipy import misc
+import numpy as np
+import scipy
+import matplotlib.pyplot as plt
+
+from cifarclassify.utils import imagenet_utils
 
 class AlexNet(nn.Module):
     def __init__(self, n_classes=1000):
@@ -55,14 +62,21 @@ class AlexNet(nn.Module):
 if __name__ == '__main__':
     n_classes = 1000
     model = AlexNet(n_classes=n_classes)
-    x = Variable(torch.randn(1, 3, 224, 224))
+    model_pretrain_filename = os.path.expanduser('~/Data/alexnet-owt-4df8aa71.pth')
+    if os.path.exists(model_pretrain_filename):
+        model.load_state_dict(torch.load(model_pretrain_filename))
+
+    input = misc.imread('../../data/cat.jpg')
+    # 按照imagenet的图像格式预处理
+    input = imagenet_utils.imagenet_preprocess(input)
+
+    # x = Variable(torch.randn(1, 3, 224, 224))
+    x = Variable(torch.FloatTensor(torch.from_numpy(input)))
     y = Variable(torch.LongTensor(np.ones(1, dtype=np.int)))
     # print(x.shape)
     start = time.time()
     pred = model(x)
     end = time.time()
     print("AlexNet forward time:", end-start)
-    # print(pred.shape)
-    # criterion = nn.CrossEntropyLoss()
-    # loss = criterion(pred, y)
-    # print(loss)
+
+    imagenet_utils.get_imagenet_label(pred)

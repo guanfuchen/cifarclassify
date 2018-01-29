@@ -10,9 +10,14 @@ from torchvision import models
 import numpy as np
 import math
 import os
+from scipy import misc
+import numpy as np
+import scipy
+import matplotlib.pyplot as plt
 
 
 from cifarclassify.utils import numpy_utils
+from cifarclassify.utils import imagenet_utils
 
 
 # conv batchnorm
@@ -130,30 +135,11 @@ class MobileNetV2(nn.Module):
                 m.bias.data.zero_()
 
 if __name__ == '__main__':
-    from scipy import misc
-    import numpy as np
-    import scipy
-    import matplotlib.pyplot as plt
+
     image_height, image_width, image_channel = (224, 224, 3)
     input = misc.imread('../../data/cat.jpg')
-    # crop中心
-    input = numpy_utils.image_crop_resize(input, image_height, image_width)
-    # 直接resize
-    # input = misc.imresize(input, (image_height, image_width))
-
-    # print(input.shape)
-    # plt.imshow(input)
-    # plt.show()
-
-    # input = misc.imresize(input, (image_height, image_width))
-    input = input[:, :, ::-1]
-    # BGR
-    input = input - [103.939, 116.779, 123.68]
-    input = input * 0.017
-    input = np.expand_dims(input, axis=0)
-    input = input.astype(np.float32)
-    input = input.transpose((0, 3, 1, 2))
-    print(input.shape)
+    # 按照imagenet的图像格式预处理
+    input = imagenet_utils.imagenet_preprocess(input)
 
     n_classes = 1000
     model = MobileNetV2(n_classes=n_classes)
@@ -166,15 +152,8 @@ if __name__ == '__main__':
     # print(x.shape)
     start = time.time()
     pred = model(x)
-    pred_np = pred.data.numpy()
-    pred_np = np.squeeze(pred_np, axis=0)
-    pred_np_prob = numpy_utils.softmax(pred_np)
-    # argsort是从小到大
-    pred_np_argmax = np.argsort(pred_np)[::-1]
-    pred_np_argmax_top5 = pred_np_argmax[:5]
-    pred_np_prob_top5 = pred_np_prob[pred_np_argmax_top5]
-    # print('pred_np_argmax.shape:', pred_np_argmax.shape)
     end = time.time()
-    print('pred_np_argmax_top5:', pred_np_argmax_top5)
-    print('pred_np_prob_top5:', pred_np_prob_top5)
     print("MobileNetV2 forward time:", end-start)
+
+    imagenet_utils.get_imagenet_label(pred)
+
