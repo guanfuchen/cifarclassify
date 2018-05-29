@@ -11,6 +11,9 @@ from torch.autograd import Variable
 
 # googlenet中的inception结构
 class Inception(nn.Module):
+    """
+    :param
+    """
     def __init__(self, in_planes, n1x1, n3x3red, n3x3, n5x5red, n5x5, pool_planes):
         super(Inception, self).__init__()
         # 1x1 conv branch
@@ -55,6 +58,10 @@ class Inception(nn.Module):
         )
 
     def forward(self, x):
+        """
+        :param x:
+        :return:
+        """
         y1 = self.b1(x)
         y2 = self.b2(x)
         y3 = self.b3(x)
@@ -70,6 +77,9 @@ class Inception(nn.Module):
 
 # cifar10上的GoogLeNet
 class GoogLeNet(nn.Module):
+    """
+    :param
+    """
     def __init__(self, n_classes=10):
         super(GoogLeNet, self).__init__()
         self.pre_layers = nn.Sequential(
@@ -96,6 +106,10 @@ class GoogLeNet(nn.Module):
         self.linear = nn.Linear(1024, n_classes)
 
     def forward(self, x):
+        """
+        :param x:
+        :return:
+        """
         out = self.pre_layers(x)
         out = self.a3(out)
         out = self.b3(out)

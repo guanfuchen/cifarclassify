@@ -15,6 +15,9 @@ import matplotlib.pyplot as plt
 from cifarclassify.utils import imagenet_utils
 
 class AlexNet(nn.Module):
+    """
+    :param
+    """
     def __init__(self, n_classes=1000):
         super(AlexNet, self).__init__()
         # features和classifier的结构和vgg16等类似
@@ -54,6 +57,10 @@ class AlexNet(nn.Module):
         )
 
     def forward(self, x):
+        """
+        :param x:
+        :return:
+        """
         x = self.features(x)
         x = x.view(x.size(0), 256 * 6 * 6)
         x = self.classifier(x)
@@ -66,7 +73,7 @@ if __name__ == '__main__':
     if os.path.exists(model_pretrain_filename):
         model.load_state_dict(torch.load(model_pretrain_filename))
 
-    input = misc.imread('../../data/cat.jpg')
+    input = misc.imread('../../../data/cat.jpg')
     # 按照imagenet的图像格式预处理
     input = imagenet_utils.imagenet_preprocess(input)
 

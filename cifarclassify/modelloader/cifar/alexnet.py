@@ -15,6 +15,9 @@ import matplotlib.pyplot as plt
 from cifarclassify.utils import imagenet_utils
 
 class AlexNet(nn.Module):
+    """
+    :param
+    """
     def __init__(self, n_classes=10):
         super(AlexNet, self).__init__()
         # features和classifier的结构和vgg16等类似
@@ -36,6 +39,10 @@ class AlexNet(nn.Module):
         self.classifier = nn.Linear(256, n_classes)
 
     def forward(self, x):
+        """
+        :param x:
+        :return:
+        """
         x = self.features(x)
         x = x.view(x.size(0), -1)
         x = self.classifier(x)

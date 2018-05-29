@@ -6,6 +6,15 @@
 - [pytorch-cifar](https://github.com/kuangliu/pytorch-cifar)
 - [pytorch-classification](https://github.com/bearpaw/pytorch-classification)
 
+---
+## 学习率算法
+增加学习率算法比较。
+
+[Learning-Rate](https://github.com/nathanhubens/Learning-Rate)
+
+[lr_scheduler.py](https://github.com/pytorch/pytorch/blob/master/torch/optim/lr_scheduler.py)
+
+[pytorch-lr-scheduler](https://github.com/Jiaming-Liu/pytorch-lr-scheduler)
 
 ---
 ### 网络实现

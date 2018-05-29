@@ -22,6 +22,12 @@ from cifarclassify.utils import imagenet_utils
 
 # conv batchnorm
 def conv_bn(inp, oup, stride):
+    """
+    :param inp:
+    :param oup:
+    :param stride:
+    :return:
+    """
     return nn.Sequential(
         nn.Conv2d(inp, oup, 3, stride, 1, bias=False),
         nn.BatchNorm2d(oup),
@@ -30,6 +36,11 @@ def conv_bn(inp, oup, stride):
 
 
 def conv_1x1_bn(inp, oup):
+    """
+    :param inp:
+    :param oup:
+    :return:
+    """
     return nn.Sequential(
         nn.Conv2d(inp, oup, 1, 1, 0, bias=False),
         nn.BatchNorm2d(oup),
@@ -39,6 +50,9 @@ def conv_1x1_bn(inp, oup):
 
 # 反向残差模块
 class InvertedResidual(nn.Module):
+    """
+    :param
+    """
     def __init__(self, inp, oup, stride, expand_ratio):
         super(InvertedResidual, self).__init__()
         self.stride = stride
@@ -69,6 +83,9 @@ class InvertedResidual(nn.Module):
 
 
 class MobileNetV2(nn.Module):
+    """
+    :param
+    """
     def __init__(self, n_classes=1000, input_size=224, width_mult=1.):
         super(MobileNetV2, self).__init__()
         # setting of inverted residual blocks
@@ -114,6 +131,10 @@ class MobileNetV2(nn.Module):
         self._initialize_weights()
 
     def forward(self, x):
+        """
+        :param x:
+        :return:
+        """
         x = self.features(x)
         x = x.view(-1, self.last_channel)
         x = self.classifier(x)
@@ -137,7 +158,7 @@ class MobileNetV2(nn.Module):
 if __name__ == '__main__':
 
     image_height, image_width, image_channel = (224, 224, 3)
-    input = misc.imread('../../data/cat.jpg')
+    input = misc.imread('../../../data/cat.jpg')
     # 按照imagenet的图像格式预处理
     input = imagenet_utils.imagenet_preprocess(input)
 
@@ -145,7 +166,7 @@ if __name__ == '__main__':
     model = MobileNetV2(n_classes=n_classes)
     model.eval()
     # 训练模型为gpu模型
-    model.load_state_dict(torch.load(os.path.expanduser('~/Data/mobilenetv2.pth.tar'), map_location=lambda storage, loc: storage))
+    # model.load_state_dict(torch.load(os.path.expanduser('~/Data/mobilenetv2.pth.tar'), map_location=lambda storage, loc: storage))
     # x = Variable(torch.randn(1, image_channel, image_height, image_width))
     x = Variable(torch.FloatTensor(torch.from_numpy(input)))
     y = Variable(torch.LongTensor(np.ones(1, dtype=np.int)))

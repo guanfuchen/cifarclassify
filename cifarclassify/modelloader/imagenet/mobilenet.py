@@ -9,6 +9,9 @@ import numpy as np
 
 
 class mobilenet_conv_bn_relu(nn.Module):
+    """
+    :param
+    """
     def __init__(self, in_channels, out_channels, stride):
         super(mobilenet_conv_bn_relu, self).__init__()
         self.cbr_seq = nn.Sequential(
@@ -19,10 +22,18 @@ class mobilenet_conv_bn_relu(nn.Module):
         )
 
     def forward(self, x):
+        """
+        :param x:
+        :return:
+        """
         x = self.cbr_seq(x)
         return x
 
+
 class mobilenet_conv_dw_relu(nn.Module):
+    """
+    :param
+    """
     def __init__(self, in_channels, out_channels, stride):
         super(mobilenet_conv_dw_relu, self).__init__()
         self.cbr_seq = nn.Sequential(
@@ -38,11 +49,18 @@ class mobilenet_conv_dw_relu(nn.Module):
         )
 
     def forward(self, x):
+        """
+        :param x:
+        :return:
+        """
         x = self.cbr_seq(x)
         return x
 
-class MobileNet(nn.Module):
 
+class MobileNet(nn.Module):
+    """
+    :param
+    """
     def __init__(self, n_classes=1000):
         super(MobileNet, self).__init__()
         self.conv1_bn = mobilenet_conv_bn_relu(3, 32, 2)
@@ -63,6 +81,10 @@ class MobileNet(nn.Module):
         self.fc = nn.Linear(1024, n_classes)
 
     def forward(self, x):
+        """
+        :param x:
+        :return:
+        """
         x = self.conv1_bn(x)
         x = self.conv2_dw(x)
         x = self.conv3_dw(x)
@@ -82,6 +104,7 @@ class MobileNet(nn.Module):
         x = self.fc(x)
         return x
 
+
 if __name__ == '__main__':
     n_classes = 1000
     model = MobileNet(n_classes=n_classes)
@@ -92,10 +115,9 @@ if __name__ == '__main__':
     start = time.time()
     pred = model(x)
     end = time.time()
-    print("MobileNet forward time:", end-start)
+    print("MobileNet forward time:", end - start)
     # start = time.time()
     # vgg_16 = models.vgg16(pretrained=False)
     # pred = vgg_16(x)
     # end = time.time()
     # print("vgg16 forward time:", end-start)
-
