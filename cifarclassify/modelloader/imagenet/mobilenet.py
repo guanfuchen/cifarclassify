@@ -108,6 +108,7 @@ class MobileNet(nn.Module):
 if __name__ == '__main__':
     n_classes = 1000
     model = MobileNet(n_classes=n_classes)
+    model.eval()
     # model.init_vgg16()
     x = Variable(torch.randn(1, 3, 224, 224))
     y = Variable(torch.LongTensor(np.ones(1, dtype=np.int)))

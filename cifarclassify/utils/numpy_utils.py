@@ -7,12 +7,22 @@ from scipy import misc
 
 
 def softmax(x):
+    """ get the softmax value of x
+    :param x:
+    :return:
+    """
     exp_x = np.exp(x)
     softmax_x = exp_x / np.sum(exp_x)
     return softmax_x
 
 
 def crop_center(img, cropx, cropy):
+    """ crop the image in the center
+    :param img:
+    :param cropx:
+    :param cropy:
+    :return:
+    """
     y, x, c = img.shape
     startx = x // 2 - (cropx // 2)
     starty = y // 2 - (cropy // 2)
@@ -20,6 +30,12 @@ def crop_center(img, cropx, cropy):
 
 
 def image_crop_resize(img, input_height, input_width):
+    """ crop the image and resize
+    :param img:
+    :param input_height:
+    :param input_width:
+    :return:
+    """
     img_scaled = None
     aspect = img.shape[1] / float(img.shape[0])
     # print("Orginal aspect ratio: " + str(aspect))

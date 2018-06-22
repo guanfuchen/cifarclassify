@@ -69,16 +69,17 @@ class AlexNet(nn.Module):
 if __name__ == '__main__':
     n_classes = 1000
     model = AlexNet(n_classes=n_classes)
-    model_pretrain_filename = os.path.expanduser('~/Data/alexnet-owt-4df8aa71.pth')
+    model.eval()
+    model_pretrain_filename = os.path.expanduser('~/.torch/models/alexnet-owt-4df8aa71.pth')
     if os.path.exists(model_pretrain_filename):
         model.load_state_dict(torch.load(model_pretrain_filename))
 
-    input = misc.imread('../../../data/cat.jpg')
+    input_data = misc.imread('../../../data/cat.jpg')
     # 按照imagenet的图像格式预处理
-    input = imagenet_utils.imagenet_preprocess(input)
+    input_data = imagenet_utils.imagenet_preprocess(input_data)
 
     # x = Variable(torch.randn(1, 3, 224, 224))
-    x = Variable(torch.FloatTensor(torch.from_numpy(input)))
+    x = Variable(torch.FloatTensor(torch.from_numpy(input_data)))
     y = Variable(torch.LongTensor(np.ones(1, dtype=np.int)))
     # print(x.shape)
     start = time.time()

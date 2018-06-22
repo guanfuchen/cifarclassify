@@ -5,6 +5,9 @@
 这个仓库主要实现常用的网络并在cifar10数据集上进行试验，比较分类精度。主要参考如下所示：
 - [pytorch-cifar](https://github.com/kuangliu/pytorch-cifar)
 - [pytorch-classification](https://github.com/bearpaw/pytorch-classification)
+- [wide-resnet.pytorch](https://github.com/meliketoy/wide-resnet.pytorch) 使用resnet训练的cifar10和cifar100模型。
+- [pytorch-playground](https://github.com/aaron-xichen/pytorch-playground) 实现常用数据集和模型。
+- [pretrained-models.pytorch](https://github.com/Cadene/pretrained-models.pytorch) 该仓库实现了大量的常用DL模型。
 
 ---
 ## 学习率算法
@@ -20,6 +23,7 @@
 ### 网络实现
 - alexnet
 - MobileNet [mobilenet实现](doc/mobilenet_implement.md)
+- resnet
 - ...
 
 ---

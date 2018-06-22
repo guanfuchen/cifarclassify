@@ -130,6 +130,7 @@ class GoogLeNet(nn.Module):
 if __name__ == '__main__':
     n_classes = 10
     model = GoogLeNet(n_classes=n_classes)
+    model.eval()
     x = Variable(torch.randn(1, 3, 32, 32))
     y = Variable(torch.LongTensor(np.ones(1, dtype=np.int)))
     # print(x.shape)

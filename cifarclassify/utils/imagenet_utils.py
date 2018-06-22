@@ -34,22 +34,22 @@ def get_imagenet_label(pred):
         print('pred_np_label_name_top5:', pred_np_label_name_top5)
 
 
-def imagenet_preprocess(input):
+def imagenet_preprocess(input_data):
     """
-    :param input: input numpy shape: (height, width, channel)
+    :param input_data: input numpy shape: (height, width, channel)
     :return: output numpy shape: (batch, channel, height, width)
     """
     image_height, image_width, image_channel = (224, 224, 3)
     # crop中心
-    input = numpy_utils.image_crop_resize(input, image_height, image_width)
+    input_data = numpy_utils.image_crop_resize(input_data, image_height, image_width)
     # 直接resize
     # input = misc.imresize(input, (image_height, image_width))
-    input = input[:, :, ::-1]
+    input_data = input_data[:, :, ::-1]
     # BGR
-    input = input - [103.939, 116.779, 123.68]
-    input = input * 0.017
-    input = np.expand_dims(input, axis=0)
-    input = input.astype(np.float32)
-    input = input.transpose((0, 3, 1, 2))
-    print(input.shape)
-    return input
+    input_data = input_data - [103.939, 116.779, 123.68]
+    input_data = input_data * 0.017
+    input_data = np.expand_dims(input_data, axis=0)
+    input_data = input_data.astype(np.float32)
+    input_data = input_data.transpose((0, 3, 1, 2))
+    print(input_data.shape)
+    return input_data
