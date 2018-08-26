@@ -46,13 +46,16 @@ class AlexNet(nn.Module):
         )
         # 分类器使用Linear全连接层，特征层使用Conv2d卷积层
         self.classifier = nn.Sequential(
-            nn.Dropout(),
+
+            nn.Dropout(p=0.5),
             # 特征层的输出为256*6*6，转换为4096的输出
             nn.Linear(256 * 6 * 6, 4096),
             nn.ReLU(inplace=True),
-            nn.Dropout(),
+
+            nn.Dropout(p=0.5),
             nn.Linear(4096, 4096),
             nn.ReLU(inplace=True),
+
             nn.Linear(4096, n_classes),
         )
 

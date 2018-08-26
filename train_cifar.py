@@ -10,9 +10,13 @@ from torch import optim
 from torch.autograd import Variable
 from torchvision import transforms
 import argparse
+import visdom
+import numpy as np
 
 
 def train(args):
+    if args.vis:
+        vis = visdom.Visdom()
     transform_train = transforms.Compose([
         transforms.RandomCrop(32, padding=4),
         transforms.RandomHorizontalFlip(),
@@ -28,8 +32,8 @@ def train(args):
     trainset = torchvision.datasets.CIFAR10(root=os.path.expanduser('~/Data'), train=True, download=True, transform=transform_train)
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True, num_workers=2)
 
-    testset = torchvision.datasets.CIFAR10(root=os.path.expanduser('~/Data'), train=False, download=True, transform=transform_test)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=2)
+    # testset = torchvision.datasets.CIFAR10(root=os.path.expanduser('~/Data'), train=False, download=True, transform=transform_test)
+    # testloader = torch.utils.data.DataLoader(testset, batch_size=100, shuffle=False, num_workers=2)
 
     from cifarclassify.modelloader.cifar.alexnet import AlexNet
     start_epoch = 0
@@ -47,15 +51,31 @@ def train(args):
         model.load_state_dict(torch.load(args.resume_model_state_dict))
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9, weight_decay=5e-4)
+    optimizer = optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4)
+    # 0<epoch<step_size lr=base_lr
+    # step_size<epoch<2*step_size lr=base_lr*gamma
+    # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
+    scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[150, 250, 350], gamma=0.1)
 
-    for epoch in range(start_epoch + 1, 20000, 1):
-        loss_epoch = 0
-        loss_avg_epoch = 0
-        data_count = 0
+    for epoch in range(start_epoch, 20000, 1):
+        print('epoch:', epoch)
+        scheduler.step()
+        # loss_epoch = 0
+        # loss_avg_epoch = 0
+        # data_count = 0
+
+        if args.vis:
+            win = 'lr step'
+            lr = scheduler.get_lr()
+            lr = np.array(lr)
+            # print('lr:', lr)
+            win_res = vis.line(X=np.ones(1) * epoch, Y=lr, win=win, update='append', name=win)
+            if win_res != win:
+                vis.line(X=np.ones(1) * epoch, Y=lr, win=win, name=win)
+
         for i, (imgs, labels) in enumerate(trainloader):
-            data_count = i
-            print(i)
+            # data_count = i
+            # print(i)
             imgs, labels = Variable(imgs), Variable(labels)
 
             # 训练优化参数
@@ -65,18 +85,29 @@ def train(args):
             loss = criterion(outputs, labels)
             # print('loss:', loss)
             loss_numpy = loss.data.numpy()
-            loss_epoch += loss_numpy
+            loss_numpy = loss_numpy[np.newaxis]
+            # print('loss_numpy.shape:', loss_numpy.shape)
+            # print('loss_numpy:', loss_numpy)
+            # loss_epoch += loss_numpy
+            if args.vis:
+                win = 'loss iterations'
+                # print(trainset.__len__())
+                # print(epoch * trainset.__len__() / (args.batch_size * 1.0) + i)
+                win_res = vis.line(X=np.ones(1) * (epoch*trainset.__len__()/(args.batch_size*1.0) + i), Y=loss_numpy, win=win, update='append', name=win)
+                if win_res != win:
+                    vis.line(X=np.ones(1) * (epoch*trainset.__len__()/(args.batch_size*1.0) + i), Y=loss_numpy, win=win, name=win)
             loss.backward()
 
             optimizer.step()
+            # if i == 10:
+            #     break
 
         # 输出一个周期后的loss
-        loss_avg_epoch = loss_epoch / (data_count * args.batch_size * 1.0)
-        print('epoch:', epoch)
-        print('loss_avg_epoch:', loss_avg_epoch)
+        # loss_avg_epoch = loss_epoch / (data_count * args.batch_size * 1.0)
+        # print('loss_avg_epoch:', loss_avg_epoch)
 
         # 存储模型
-        if args.save_model and epoch%args.save_epoch==0:
+        if args.save_model and epoch%args.save_epoch==0 and epoch != 0:
             torch.save(model.state_dict(), '{}_cifar10_{}.pt'.format(args.structure, epoch))
 
 
@@ -91,7 +122,7 @@ if __name__ == '__main__':
     parser.add_argument('--dataset_path', type=str, default='', help='train dataset path [ /home/cgf/Data/CamVid ]')
     parser.add_argument('--data_augment', type=bool, default=False, help='enlarge the training data [ False ]')
     parser.add_argument('--batch_size', type=int, default=128, help='train dataset batch size [ 128 ]')
-    parser.add_argument('--lr', type=float, default=1e-5, help='train learning rate [ 0.01 ]')
+    parser.add_argument('--lr', type=float, default=1e-1, help='train learning rate [ 0.01 ]')
     parser.add_argument('--vis', type=bool, default=False, help='visualize the training results [ False ]')
     args = parser.parse_args()
     print(args)
