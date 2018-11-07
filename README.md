@@ -25,6 +25,7 @@
 - MobileNet [mobilenet实现](doc/mobilenet_implement.md)
 - resnet
 - densenet
+- squeezenet
 - ...
 
 ---
