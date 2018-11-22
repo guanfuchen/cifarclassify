@@ -6,7 +6,10 @@ from torch import nn
 from torch.autograd import Variable
 from torchvision import models
 import numpy as np
+import os
+from scipy import misc
 
+from cifarclassify.utils import imagenet_utils
 
 class mobilenet_conv_bn_relu(nn.Module):
     """
@@ -79,6 +82,29 @@ class MobileNet(nn.Module):
         self.conv14_dw = mobilenet_conv_dw_relu(1024, 1024, 1)
         self.avg_pool = nn.AvgPool2d(7)
         self.fc = nn.Linear(1024, n_classes)
+        self.init_weights(pretrained=True)
+
+    def init_weights(self, pretrained=False):
+        model_checkpoint_path = os.path.expanduser('~/.torch/models/mobilenet_sgd_rmsprop_69.526.tar')
+        if os.path.exists(model_checkpoint_path):
+            model_checkpoint = torch.load(model_checkpoint_path, map_location='cpu')
+            pretrained_dict = model_checkpoint['state_dict']
+
+            model_dict = self.state_dict()
+
+            # print(model_dict.keys())
+            # print(pretrained_dict.keys())
+            model_dict_keys = model_dict.keys()
+
+            new_dict = {}
+            for dict_index, (k, v) in enumerate(pretrained_dict.items()):
+                # print(dict_index)
+                # print(k)
+                new_k = model_dict_keys[dict_index]
+                new_v = v
+                new_dict[new_k] = new_v
+            model_dict.update(new_dict)
+            self.load_state_dict(model_dict)
 
     def forward(self, x):
         """
@@ -109,16 +135,16 @@ if __name__ == '__main__':
     n_classes = 1000
     model = MobileNet(n_classes=n_classes)
     model.eval()
-    # model.init_vgg16()
-    x = Variable(torch.randn(1, 3, 224, 224))
+    input_data = misc.imread('../../../data/cat.jpg')
+    # 按照imagenet的图像格式预处理
+    input_data = imagenet_utils.imagenet_preprocess(input_data)
+
+    x = Variable(torch.FloatTensor(torch.from_numpy(input_data)))
     y = Variable(torch.LongTensor(np.ones(1, dtype=np.int)))
-    # print(x.shape)
+
     start = time.time()
     pred = model(x)
     end = time.time()
     print("MobileNet forward time:", end - start)
-    # start = time.time()
-    # vgg_16 = models.vgg16(pretrained=False)
-    # pred = vgg_16(x)
-    # end = time.time()
-    # print("vgg16 forward time:", end-start)
+
+    imagenet_utils.get_imagenet_label(pred)
