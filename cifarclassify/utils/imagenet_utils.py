@@ -34,12 +34,12 @@ def get_imagenet_label(pred):
         print('pred_np_label_name_top5:', pred_np_label_name_top5)
 
 
-def imagenet_preprocess(input_data):
+def imagenet_preprocess(input_data, height=224, width=224):
     """
     :param input_data: input numpy shape: (height, width, channel)
     :return: output numpy shape: (batch, channel, height, width)
     """
-    image_height, image_width, image_channel = (224, 224, 3)
+    image_height, image_width, image_channel = (height, width, 3)
     # crop中心
     input_data = numpy_utils.image_crop_resize(input_data, image_height, image_width)
     # 直接resize
