@@ -239,6 +239,7 @@ if __name__ == '__main__':
     #     torch._utils._rebuild_tensor_v2 = _rebuild_tensor_v2
 
     model = resnet50_ibn_a()
+    model.eval()
     model_checkpoint_path = os.path.expanduser('~/.torch/models/resnet50_ibn_a.pth.tar')
     if os.path.exists(model_checkpoint_path):
         model_checkpoint = torch.load(model_checkpoint_path, map_location='cpu')
@@ -256,7 +257,6 @@ if __name__ == '__main__':
         # print(new_dict)
         model_dict.update(new_dict)
         model.load_state_dict(model_dict)
-        model.eval()
 
     input_data = misc.imread('../../../data/cat.jpg')
     # 按照imagenet的图像格式预处理
