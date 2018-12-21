@@ -51,5 +51,5 @@ def imagenet_preprocess(input_data, height=224, width=224):
     input_data = np.expand_dims(input_data, axis=0)
     input_data = input_data.astype(np.float32)
     input_data = input_data.transpose((0, 3, 1, 2))
-    print(input_data.shape)
+    # print(input_data.shape)
     return input_data

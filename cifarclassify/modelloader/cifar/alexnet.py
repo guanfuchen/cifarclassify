@@ -52,17 +52,10 @@ if __name__ == '__main__':
     n_classes = 10
     model = AlexNet(n_classes=n_classes)
 
-    # input = misc.imread('../../data/cat.jpg')
-    # 按照imagenet的图像格式预处理
-    # input = imagenet_utils.imagenet_preprocess(input)
-
     x = Variable(torch.randn(1, 3, 32, 32))
-    # x = Variable(torch.FloatTensor(torch.from_numpy(input)))
     y = Variable(torch.LongTensor(np.ones(1, dtype=np.int)))
-    # print(x.shape)
     start = time.time()
     pred = model(x)
+    # print('pred.shape', pred.shape)
     end = time.time()
     print("AlexNet forward time:", end-start)
-
-    # imagenet_utils.get_imagenet_label(pred)
