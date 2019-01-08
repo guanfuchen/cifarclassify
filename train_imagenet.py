@@ -13,41 +13,34 @@ import argparse
 import visdom
 import numpy as np
 
-from cifarclassify.modelloader.cifar.resnet import ResNet18
-from cifarclassify.modelloader.cifar.wide_resnet import wide_resnet_16_8
-from cifarclassify.modelloader.cifar.alexnet import AlexNet
+from cifarclassify.dataloader.bearing_loader import BearingLoader
+from cifarclassify.modelloader.imagenet.alexnet import AlexNet
+from cifarclassify.modelloader.imagenet.googlenet import GoogLeNet
+from cifarclassify.modelloader.imagenet.resnet import resnet18, resnet50
 
 
 def train(args):
     if args.vis:
         vis = visdom.Visdom()
         vis.close()
-    transform_train = transforms.Compose([
-        transforms.RandomCrop(32, padding=4),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    ])
 
-    transform_test = transforms.Compose([
-        transforms.ToTensor(),
-        transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
-    ])
-
-    trainset = torchvision.datasets.CIFAR10(root=os.path.expanduser('~/Data'), train=True, download=True, transform=transform_train)
+    local_path = os.path.join(os.path.expanduser('~'), 'Data/Bearing/dataset')
+    trainset = BearingLoader(local_path, is_transform=True, is_augment=False, split='train')
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True)
 
-    valset = torchvision.datasets.CIFAR10(root=os.path.expanduser('~/Data'), train=False, download=True, transform=transform_test)
+    valset = BearingLoader(local_path, is_transform=True, is_augment=False, split='val')
     valloader = torch.utils.data.DataLoader(valset, batch_size=1, shuffle=False)
 
     start_epoch = 0
 
     if args.structure == 'AlexNet':
-        model = AlexNet(n_classes=10)
-    # if args.structure == 'wide_resnet_16_8':
-    #     model = wide_resnet_16_8(n_classes=32)
-    elif args.structure == 'ResNet18':
-        model = ResNet18()
+        model = AlexNet(n_classes=trainset.n_classes)
+    elif args.structure == 'resnet18':
+        model = resnet18(n_classes=trainset.n_classes, pretrained=args.init_vgg16)
+    elif args.structure == 'resnet50':
+        model = resnet50(n_classes=trainset.n_classes, pretrained=args.init_vgg16)
+    elif args.structure == 'GoogLeNet':
+        model = GoogLeNet(n_classes=trainset.n_classes)
     else:
         print('not valid model name')
         exit(0)
@@ -163,7 +156,7 @@ def train(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='training parameter setting')
-    parser.add_argument('--structure', type=str, default='ResNet18', help='use the net structure to segment [ AlexNet ]')
+    parser.add_argument('--structure', type=str, default='resnet18', help='use the net structure to segment [ AlexNet ]')
     parser.add_argument('--resume_model', type=str, default='', help='resume model path [ AlexNet_cifar10_0.pkl ]')
     parser.add_argument('--resume_model_state_dict', type=str, default='', help='resume model state dict path [ AlexNet_cifar10_0.pt ]')
     parser.add_argument('--save_model', type=bool, default=False, help='save model [ False ]')

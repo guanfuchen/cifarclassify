@@ -122,7 +122,7 @@ class Bottleneck(nn.Module):
 class ResNet(nn.Module):
     """ Constructs  a ResNet template
     """
-    def __init__(self, block, layers, num_classes=1000):
+    def __init__(self, block, layers, n_classes=1000):
         """
         :param block: BasicBlock or Bottleneck
         :param layers:
@@ -140,7 +140,7 @@ class ResNet(nn.Module):
         self.layer3 = self._make_layer(block=block, planes=256, blocks=layers[2], stride=2)
         self.layer4 = self._make_layer(block=block, planes=512, blocks=layers[3], stride=2)
         self.avgpool = nn.AvgPool2d(kernel_size=7, stride=1)
-        self.fc = nn.Linear(in_features=512*block.expansion, out_features=num_classes)
+        self.fc = nn.Linear(in_features=512*block.expansion, out_features=n_classes)
 
 
         # 初始化卷积层和BN层
@@ -197,6 +197,7 @@ class ResNet(nn.Module):
 
         return x
 
+
 def resnet18(pretrained=False, **kwargs):
     """Constructs a ResNet-18 model.
 
@@ -207,6 +208,8 @@ def resnet18(pretrained=False, **kwargs):
     if pretrained:
         model.load_state_dict(model_zoo.load_url(model_urls['resnet18']))
     return model
+
+
 def resnet34(pretrained=False, **kwargs):
     """Constructs a ResNet-34 model
 
@@ -226,7 +229,11 @@ def resnet50(pretrained=False, **kwargs):
     """
     model = ResNet(Bottleneck, [3, 4, 6, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet50']))
+        pretrained_dict = model_zoo.load_url(model_urls['resnet50'])
+        pretrained_dict = {k: v for k, v in pretrained_dict.items() if k not in {'fc.bias', 'fc.weight'}}
+        pretrained_dict.update(model.state_dict())
+        # print(pretrained_dict.keys())
+        model.load_state_dict(pretrained_dict)
     return model
 
 
