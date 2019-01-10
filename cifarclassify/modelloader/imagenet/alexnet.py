@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 
 from cifarclassify.utils import imagenet_utils
 
+
 class AlexNet(nn.Module):
     """
     :param

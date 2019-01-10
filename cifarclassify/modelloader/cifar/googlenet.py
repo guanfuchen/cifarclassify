@@ -76,22 +76,17 @@ class Inception(nn.Module):
         return out
 
 
-# imagenet上的GoogLeNet
+# cifar10上的GoogLeNet
 class GoogLeNet(nn.Module):
     """
     :param
     """
-    def __init__(self, n_classes=1000):
+    def __init__(self, n_classes=10):
         super(GoogLeNet, self).__init__()
         self.pre_layers = nn.Sequential(
-            nn.Conv2d(3, 64, kernel_size=7, padding=3, stride=2),
-            nn.BatchNorm2d(64),
-            nn.ReLU(True),
-            nn.MaxPool2d(3, stride=2, padding=1),
-            nn.Conv2d(64, 192, kernel_size=3, padding=1),
+            nn.Conv2d(3, 192, kernel_size=3, padding=1),
             nn.BatchNorm2d(192),
             nn.ReLU(True),
-            nn.MaxPool2d(3, stride=2, padding=1),
         )
 
         self.a3 = Inception(192,  64,  96, 128, 16, 32, 32)
@@ -108,7 +103,7 @@ class GoogLeNet(nn.Module):
         self.a5 = Inception(832, 256, 160, 320, 32, 128, 128)
         self.b5 = Inception(832, 384, 192, 384, 48, 128, 128)
 
-        self.avgpool = nn.AvgPool2d(kernel_size=7, stride=1)
+        self.avgpool = nn.AvgPool2d(8, stride=1)
         self.linear = nn.Linear(1024, n_classes)
 
     def forward(self, x):
@@ -117,9 +112,7 @@ class GoogLeNet(nn.Module):
         :return:
         """
         out = self.pre_layers(x)
-        # print('out.shape:', out.shape)
         out = self.a3(out)
-        # print('out_a3.shape:', out.shape)
         out = self.b3(out)
         out = self.maxpool(out)
         out = self.a4(out)
@@ -130,19 +123,17 @@ class GoogLeNet(nn.Module):
         out = self.maxpool(out)
         out = self.a5(out)
         out = self.b5(out)
-        # print('out_b5.shape:', out.shape)
         out = self.avgpool(out)
-        # print('out_avgpool.shape:', out.shape)
         out = out.view(out.size(0), -1)
         out = self.linear(out)
         return out
 
 
-def main():
-    n_classes = 1000
+if __name__ == '__main__':
+    n_classes = 10
     model = GoogLeNet(n_classes=n_classes)
     model.eval()
-    x = Variable(torch.randn(1, 3, 224, 224))
+    x = Variable(torch.randn(1, 3, 32, 32))
     y = Variable(torch.LongTensor(np.ones(1, dtype=np.int)))
     # print(x.shape)
     start = time.time()
@@ -153,8 +144,3 @@ def main():
     # criterion = nn.CrossEntropyLoss()
     # loss = criterion(pred, y)
     # print(loss)
-
-
-if __name__ == '__main__':
-    main()
-
