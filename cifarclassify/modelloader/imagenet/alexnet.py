@@ -11,6 +11,7 @@ from scipy import misc
 import numpy as np
 import scipy
 import matplotlib.pyplot as plt
+from torch.utils import model_zoo
 
 from cifarclassify.utils import imagenet_utils
 
@@ -19,8 +20,11 @@ class AlexNet(nn.Module):
     """
     :param
     """
-    def __init__(self, n_classes=1000):
+    def __init__(self, n_classes=1000, pretrained=False):
         super(AlexNet, self).__init__()
+        self.n_classes = n_classes
+        self.pretrained = pretrained
+
         # features和classifier的结构和vgg16等类似
         self.features = nn.Sequential(
             # (224-11+2*2)/4+1=55
@@ -60,6 +64,9 @@ class AlexNet(nn.Module):
             nn.Linear(4096, n_classes),
         )
 
+        if self.pretrained:
+            self.load_weights()
+
     def forward(self, x):
         """
         :param x:
@@ -70,13 +77,26 @@ class AlexNet(nn.Module):
         x = self.classifier(x)
         return x
 
+    def load_weights(self):
+        pretrained_dict = model_zoo.load_url('https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth')
+        model_dict = self.state_dict()
+        # print('pretrained_dict.keys():', pretrained_dict.keys())
+        # print('model_dict.keys():', model_dict.keys())
+        if self.n_classes!=1000:
+            new_dict = {k: v for k, v in pretrained_dict.items() if k not in {'classifier.6.weight', 'classifier.6.bias'}}
+        else:
+            new_dict = pretrained_dict
+        model_dict.update(new_dict)
+        self.load_state_dict(model_dict)
+
+
 if __name__ == '__main__':
     n_classes = 1000
-    model = AlexNet(n_classes=n_classes)
+    model = AlexNet(n_classes=n_classes, pretrained=True)
     model.eval()
-    model_pretrain_filename = os.path.expanduser('~/.torch/models/alexnet-owt-4df8aa71.pth')
-    if os.path.exists(model_pretrain_filename):
-        model.load_state_dict(torch.load(model_pretrain_filename))
+    # model_pretrain_filename = os.path.expanduser('~/.torch/models/alexnet-owt-4df8aa71.pth')
+    # if os.path.exists(model_pretrain_filename):
+    #     model.load_state_dict(torch.load(model_pretrain_filename))
 
     input_data = misc.imread('../../../data/cat.jpg')
     # 按照imagenet的图像格式预处理

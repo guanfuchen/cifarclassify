@@ -34,7 +34,7 @@ def train(args):
     start_epoch = 0
 
     if args.structure == 'AlexNet':
-        model = AlexNet(n_classes=trainset.n_classes)
+        model = AlexNet(n_classes=trainset.n_classes, pretrained=args.init_vgg16)
     elif args.structure == 'resnet18':
         model = resnet18(n_classes=trainset.n_classes, pretrained=args.init_vgg16)
     elif args.structure == 'resnet50':
