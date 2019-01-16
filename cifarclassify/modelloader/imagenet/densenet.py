@@ -9,6 +9,7 @@ import numpy as np
 import torch.nn.functional as F
 import math
 
+
 class Bottleneck(nn.Module):
     """
     DenseNet中的Bottleneck，由BN+ReLU+Conv(1x1)+BN+ReLU+Conv(3x3)组成，其中1x1的feature map通道数为4*growthRate
@@ -35,6 +36,7 @@ class Bottleneck(nn.Module):
         out = self.conv2(F.relu(self.bn2(out)))
         out = torch.cat((x, out), 1)
         return out
+
 
 class SingleLayer(nn.Module):
     """
@@ -158,8 +160,10 @@ class DenseNet(nn.Module):
         out = self.trans2(self.dense2(out))
         out = self.dense3(out)
         out = torch.squeeze(F.avg_pool2d(F.relu(self.bn1(out)), 8))
-        out = F.log_softmax(self.fc(out))
+        out = self.fc(out)
+        # out = F.log_softmax(out)
         return out
+
 
 if __name__ == '__main__':
     n_classes = 10

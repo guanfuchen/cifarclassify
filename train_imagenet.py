@@ -14,8 +14,10 @@ import visdom
 import numpy as np
 
 from cifarclassify.dataloader.bearing_loader import BearingLoader
+from cifarclassify.dataloader.caltech101_loader import Caltech101Loader
 from cifarclassify.modelloader.imagenet.alexnet import AlexNet
 from cifarclassify.modelloader.imagenet.googlenet import GoogLeNet
+from cifarclassify.modelloader.imagenet.peleenet import PeleeNet
 from cifarclassify.modelloader.imagenet.resnet import resnet18, resnet50
 
 
@@ -24,11 +26,20 @@ def train(args):
         vis = visdom.Visdom()
         vis.close()
 
-    local_path = os.path.join(os.path.expanduser('~'), 'Data/Bearing/dataset')
-    trainset = BearingLoader(local_path, is_transform=True, is_augment=False, split='train')
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True)
+    local_path = os.path.expanduser(args.dataset_path)
+    trainset = None
+    valset = None
+    if args.dataset == 'Bearing':
+        trainset = BearingLoader(local_path, is_transform=True, is_augment=False, split='train')
+        valset = BearingLoader(local_path, is_transform=True, is_augment=False, split='val')
+    elif args.dataset == 'Caltech101':
+        trainset = Caltech101Loader(local_path, is_transform=True, is_augment=False, split='train')
+        valset = Caltech101Loader(local_path, is_transform=True, is_augment=False, split='val')
+    else:
+        print('{} dataset does not implement'.format(args.dataset))
+        exit(0)
 
-    valset = BearingLoader(local_path, is_transform=True, is_augment=False, split='val')
+    trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True)
     valloader = torch.utils.data.DataLoader(valset, batch_size=1, shuffle=False)
 
     start_epoch = 0
@@ -41,6 +52,8 @@ def train(args):
         model = resnet50(n_classes=trainset.n_classes, pretrained=args.init_vgg16)
     elif args.structure == 'GoogLeNet':
         model = GoogLeNet(n_classes=trainset.n_classes)
+    elif args.structure == 'PeleeNet':
+        model = PeleeNet(n_classes=trainset.n_classes)
     else:
         print('not valid model name')
         exit(0)
@@ -162,7 +175,8 @@ if __name__ == '__main__':
     parser.add_argument('--save_model', type=bool, default=False, help='save model [ False ]')
     parser.add_argument('--save_epoch', type=int, default=1, help='save model after epoch [ 1 ]')
     parser.add_argument('--init_vgg16', type=bool, default=False, help='init model using vgg16 weights [ False ]')
-    parser.add_argument('--dataset_path', type=str, default='', help='train dataset path [ /home/cgf/Data/CamVid ]')
+    parser.add_argument('--dataset', type=str, default='Caltech101', help='train dataset path [ Caltech101 Bearing ]')
+    parser.add_argument('--dataset_path', type=str, default='~/Data/101_ObjectCategories', help='train dataset path [ ~/Data/101_ObjectCategories ~/Data/Bearing ]')
     parser.add_argument('--data_augment', type=bool, default=False, help='enlarge the training data [ False ]')
     parser.add_argument('--batch_size', type=int, default=128, help='train dataset batch size [ 128 ]')
     parser.add_argument('--val_interval', type=int, default=1, help='val dataset interval unit epoch [ 3 ]')

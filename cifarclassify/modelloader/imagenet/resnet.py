@@ -31,6 +31,7 @@ def conv3x3(in_planes, out_planes, stride=1):
     """
     return nn.Conv2d(in_channels=in_planes, out_channels=out_planes, kernel_size=3, stride=stride, padding=1, bias=False)
 
+
 class BasicBlock(nn.Module):
     """
     BasicBlock
@@ -129,6 +130,7 @@ class ResNet(nn.Module):
         :param num_classes:
         """
         super(ResNet, self).__init__()
+        self.n_classes = n_classes
         self.inplanes = 64
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=64, kernel_size=7, stride=2, padding=3, bias=False)  # padding=(kernel_size-1)/2 bias=False
         self.bn1 = nn.BatchNorm2d(num_features=64)
@@ -140,7 +142,7 @@ class ResNet(nn.Module):
         self.layer3 = self._make_layer(block=block, planes=256, blocks=layers[2], stride=2)
         self.layer4 = self._make_layer(block=block, planes=512, blocks=layers[3], stride=2)
         self.avgpool = nn.AvgPool2d(kernel_size=7, stride=1)
-        self.fc = nn.Linear(in_features=512*block.expansion, out_features=n_classes)
+        self.fc = nn.Linear(in_features=512*block.expansion, out_features=self.n_classes)
 
 
         # 初始化卷积层和BN层
@@ -197,6 +199,18 @@ class ResNet(nn.Module):
 
         return x
 
+    def load_weights(self, url):
+        pretrained_dict = model_zoo.load_url(model_urls[url])
+        model_dict = self.state_dict()
+        # print('pretrained_dict.keys():', pretrained_dict.keys())
+        # print('model_dict.keys():', model_dict.keys())
+        if self.n_classes!=1000:
+            new_dict = {k: v for k, v in pretrained_dict.items() if k not in {'fc.weight', 'fc.bias'}}
+        else:
+            new_dict = pretrained_dict
+        model_dict.update(new_dict)
+        self.load_state_dict(model_dict)
+
 
 def resnet18(pretrained=False, **kwargs):
     """Constructs a ResNet-18 model.
@@ -206,7 +220,7 @@ def resnet18(pretrained=False, **kwargs):
     """
     model = ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet18']))
+        model.load_weights('resnet18')
     return model
 
 
@@ -218,7 +232,7 @@ def resnet34(pretrained=False, **kwargs):
     """
     model = ResNet(BasicBlock, layers=[3, 4, 6, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet34']))
+        model.load_weights('resnet50')
     return model
 
 
@@ -244,7 +258,7 @@ def resnet101(pretrained=False, **kwargs):
     """
     model = ResNet(Bottleneck, [3, 4, 23, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet101']))
+        model.load_weights('resnet101')
     return model
 
 
@@ -255,7 +269,7 @@ def resnet152(pretrained=False, **kwargs):
     """
     model = ResNet(Bottleneck, [3, 8, 36, 3], **kwargs)
     if pretrained:
-        model.load_state_dict(model_zoo.load_url(model_urls['resnet152']))
+        model.load_weights('resnet152')
     return model
 
 
@@ -268,7 +282,6 @@ if __name__ == '__main__':
     input_data = misc.imread('../../../data/cat.jpg')
     # 按照imagenet的图像格式预处理
     input_data = imagenet_utils.imagenet_preprocess(input_data)
-
 
     x = Variable(torch.FloatTensor(torch.from_numpy(input_data)))
     y = Variable(torch.LongTensor(np.ones(1, dtype=np.int)))

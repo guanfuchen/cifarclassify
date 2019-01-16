@@ -26,7 +26,7 @@ class BearingLoader(data.Dataset):
         self.joint_augment_transform = None
         self.is_augment = is_augment
 
-        file_list = glob.glob(root + '/*.jpg')
+        file_list = glob.glob(root + '/dataset/*.jpg')
         file_list.sort()
         file_list_len = len(file_list)
         split_index = int(file_list_len*0.7)
@@ -79,7 +79,7 @@ class BearingLoader(data.Dataset):
 
 def main():
     home_path = os.path.expanduser('~')
-    local_path = os.path.join(home_path, 'Data/Bearing/dataset')
+    local_path = os.path.join(home_path, 'Data/Bearing')
     batch_size = 4
     dst = BearingLoader(local_path, is_transform=True, is_augment=False)
     trainloader = data.DataLoader(dst, batch_size=batch_size, shuffle=True)
